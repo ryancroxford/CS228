@@ -22,8 +22,8 @@ function getRndInteger(min, max) {
 
 function handleFrame(frame){
     clear();
-    let xScale = coordinateScale(x,0,centerX*2);
-    let yScale = coordinateScale(y,0,centerY*2);
+    let xScale = coordinateScale(x,0,centerX*2,rawXMin,rawXMax);
+    let yScale = coordinateScale(y,0,centerY*2,rawYMin,rawYMax);
     circle(xScale,yScale,50);
     // x += getRndInteger(-1,1);
     // y += getRndInteger(-1,1);
@@ -47,6 +47,7 @@ function handleHand(hand){
 function handleFinger(finger){
     x = finger.tipPosition[0];
     y = finger.tipPosition[1];
+    y *= -1;
     z = finger.tipPosition[2];
 
     if(x < rawXMin){
@@ -71,6 +72,6 @@ function handleFinger(finger){
 
 }
 
-function coordinateScale(pos,outputLow,outputHigh){
-    return ((pos-rawXMin)/(rawYMax-rawXMin))*(outputHigh-outputLow)+outputLow;
+function coordinateScale(pos,outputMin,outputMax,inputMin,inputMax){
+    return ((pos-inputMin)/(inputMax-inputMin))*(outputMax-outputMin)+outputMin;
 }

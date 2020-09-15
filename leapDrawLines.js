@@ -37,11 +37,12 @@ function handleFrame(frame){
 function handleHand(hand){
     let fingers = hand.fingers;
     let i = 0;
-    for(i;i<fingers.length;++i){
-        // if(fingers[i].id % 10 === 1){
-        //     handleFinger(fingers[i]);
-        // }
-        handleFinger(fingers[i]);
+    for(i;i<4;++i){
+        let j = 0;
+        for(j;j<5;++j){
+            let bones = fingers[j].bones;
+            handleBone(bones[i],5-i);
+        }
     }
 }
 
@@ -51,6 +52,57 @@ function handleFinger(finger){
     y *= -1;
     z = finger.tipPosition[2];
 
+    // if(x < rawXMin){
+    //     rawXMin = x;
+    // }
+    //
+    // if(x > rawXMax){
+    //     rawXMax = x;
+    // }
+    //
+    // if(y < rawYMin){
+    //     rawYMin = y;
+    // }
+    //
+    // if(y > rawYMax){
+    //     rawYMax = y;
+    // }
+
+    let xScale = coordinateScale(x,0,centerX*2,rawXMin,rawXMax);
+    let yScale = coordinateScale(y,0,centerY*2,rawYMin,rawYMax);
+    // circle(xScale,yScale,50);
+    let bones = finger.bones;
+    let i = 0;
+    // for(i;i < 4;++i){
+    //     // if(bones[i].id % 10 === 1){
+    //     //     handleFinger(bones[i]);
+    //     // }
+    //     handleBone(bones[i],i);
+    // }
+
+}
+
+function handleBone(bone,order){
+    let xt = bone.nextJoint[0];
+    let xb = bone.prevJoint[0];
+    let yt = bone.nextJoint[1];
+    let yb = bone.prevJoint[1];
+    yt *= -1;
+    yb *= -1;
+    let zt = bone.nextJoint[2];
+    let zb = bone.prevJoint[2];
+    let xtScale = coordinateScale(xt,0,centerX*2,rawXMin,rawXMax);
+    let ytScale = coordinateScale(yt,0,centerY*2,rawYMin,rawYMax);
+    let xbScale = coordinateScale(xb,0,centerX*2,rawXMin,rawXMax);
+    let ybScale = coordinateScale(yb,0,centerY*2,rawYMin,rawYMax);
+    // [xb,yb] = TransformCoordinates(xb,yb);
+    // [xt,yt] = TransformCoordinates(xt,yt);
+    strokeWeight(order);
+    line(xbScale,ybScale,xtScale,ytScale);
+
+}
+
+function TransformCoordinates(x,y) {
     if(x < rawXMin){
         rawXMin = x;
     }
@@ -66,33 +118,29 @@ function handleFinger(finger){
     if(y > rawYMax){
         rawYMax = y;
     }
+    x = coordinateScale(x,0,centerY*2,rawYMin,rawYMax);
+    y = coordinateScale(y,0,centerY*2,rawYMin,rawYMax);
 
-    let xScale = coordinateScale(x,0,centerX*2,rawXMin,rawXMax);
-    let yScale = coordinateScale(y,0,centerY*2,rawYMin,rawYMax);
-    // circle(xScale,yScale,50);
-    let bones = finger.bones;
-    let i = 0;
-    for(i;i<bones.length;++i){
-        // if(bones[i].id % 10 === 1){
-        //     handleFinger(bones[i]);
-        // }
-        handleBone(bones[i]);
-    }
 
-}
 
-function handleBone(bone){
-    let boneX = bone.nextJoint[0];
-    let boneY = bone.nextJoint[1];
-    boneY *= -1;
-    let boneZ = bone.nextJoint[2];
-    console.log(boneX,boneY,boneZ);
-    let xScale = coordinateScale(boneX,0,centerX*2,rawXMin,rawXMax);
-    let yScale = coordinateScale(boneY,0,centerY*2,rawYMin,rawYMax);
-    circle(xScale,yScale,50);
-
+    return [x,y]
 }
 
 function coordinateScale(pos,outputMin,outputMax,inputMin,inputMax){
+    if(x < rawXMin){
+        rawXMin = x;
+    }
+
+    if(x > rawXMax){
+        rawXMax = x;
+    }
+
+    if(y < rawYMin){
+        rawYMin = y;
+    }
+
+    if(y > rawYMax){
+        rawYMax = y;
+    }
     return ((pos-inputMin)/(inputMax-inputMin))*(outputMax-outputMin)+outputMin;
 }

@@ -1,0 +1,98 @@
+var controllerOptions = {};
+
+let centerX = window.innerWidth / 2;
+let centerY = window.innerHeight / 2;
+
+let rawXMin = 10000;
+let rawXMax = -10000;
+let rawYMin = 10000;
+let rawYMax = -10000;
+
+let x = centerX;
+let y = centerY;
+let z = 0;
+Leap.loop(controllerOptions, function(frame)
+{
+    handleFrame(frame);
+});
+
+function getRndInteger(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) ) + min;
+}
+
+function handleFrame(frame){
+    clear();
+    // let xScale = coordinateScale(x,0,centerX*2,rawXMin,rawXMax);
+    // let yScale = coordinateScale(y,0,centerY*2,rawYMin,rawYMax);
+    // circle(xScale,yScale,50);
+    // x += getRndInteger(-1,1);
+    // y += getRndInteger(-1,1);
+
+    if(frame.hands.length === 1){
+        let hand = frame.hands[0];
+        handleHand(hand);
+    }
+}
+
+function handleHand(hand){
+    let fingers = hand.fingers;
+    let i = 0;
+    for(i;i<fingers.length;++i){
+        // if(fingers[i].id % 10 === 1){
+        //     handleFinger(fingers[i]);
+        // }
+        handleFinger(fingers[i]);
+    }
+}
+
+function handleFinger(finger){
+    x = finger.tipPosition[0];
+    y = finger.tipPosition[1];
+    y *= -1;
+    z = finger.tipPosition[2];
+
+    if(x < rawXMin){
+        rawXMin = x;
+    }
+
+    if(x > rawXMax){
+        rawXMax = x;
+    }
+
+    if(y < rawYMin){
+        rawYMin = y;
+    }
+
+    if(y > rawYMax){
+        rawYMax = y;
+    }
+
+    let xScale = coordinateScale(x,0,centerX*2,rawXMin,rawXMax);
+    let yScale = coordinateScale(y,0,centerY*2,rawYMin,rawYMax);
+    // circle(xScale,yScale,50);
+    let bones = finger.bones;
+    let i = 0;
+    for(i;i<bones.length;++i){
+        // if(bones[i].id % 10 === 1){
+        //     handleFinger(bones[i]);
+        // }
+        handleBone(bones[i]);
+    }
+
+}
+
+function handleBone(bone){
+    let boneX = bone.nextJoint[0];
+    let boneY = bone.nextJoint[1];
+    boneY *= -1;
+    let boneZ = bone.nextJoint[2];
+    console.log(boneX,boneY,boneZ);
+    let xScale = coordinateScale(boneX,0,centerX*2,rawXMin,rawXMax);
+    let yScale = coordinateScale(boneY,0,centerY*2,rawYMin,rawYMax);
+    circle(xScale,yScale,50);
+
+}
+
+function coordinateScale(pos,outputMin,outputMax,inputMin,inputMax){
+    return ((pos-inputMin)/(inputMax-inputMin))*(outputMax-outputMin)+outputMin;
+}

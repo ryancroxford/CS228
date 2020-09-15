@@ -22,11 +22,6 @@ function getRndInteger(min, max) {
 
 function handleFrame(frame){
     clear();
-    // let xScale = coordinateScale(x,0,centerX*2,rawXMin,rawXMax);
-    // let yScale = coordinateScale(y,0,centerY*2,rawYMin,rawYMax);
-    // circle(xScale,yScale,50);
-    // x += getRndInteger(-1,1);
-    // y += getRndInteger(-1,1);
 
     if(frame.hands.length === 1){
         let hand = frame.hands[0];
@@ -91,14 +86,10 @@ function handleBone(bone,order){
     yb *= -1;
     let zt = bone.nextJoint[2];
     let zb = bone.prevJoint[2];
-    let xtScale = coordinateScale(xt,0,centerX*2,rawXMin,rawXMax);
-    let ytScale = coordinateScale(yt,0,centerY*2,rawYMin,rawYMax);
-    let xbScale = coordinateScale(xb,0,centerX*2,rawXMin,rawXMax);
-    let ybScale = coordinateScale(yb,0,centerY*2,rawYMin,rawYMax);
-    // [xb,yb] = TransformCoordinates(xb,yb);
-    // [xt,yt] = TransformCoordinates(xt,yt);
+    [xb,yb] = TransformCoordinates(xb,yb);
+    [xt,yt] = TransformCoordinates(xt,yt);
     strokeWeight(order);
-    line(xbScale,ybScale,xtScale,ytScale);
+    line(xb,yb,xt,yt);
 
 }
 
@@ -127,20 +118,20 @@ function TransformCoordinates(x,y) {
 }
 
 function coordinateScale(pos,outputMin,outputMax,inputMin,inputMax){
-    if(x < rawXMin){
-        rawXMin = x;
-    }
-
-    if(x > rawXMax){
-        rawXMax = x;
-    }
-
-    if(y < rawYMin){
-        rawYMin = y;
-    }
-
-    if(y > rawYMax){
-        rawYMax = y;
-    }
+    // if(x < rawXMin){
+    //     rawXMin = x;
+    // }
+    //
+    // if(x > rawXMax){
+    //     rawXMax = x;
+    // }
+    //
+    // if(y < rawYMin){
+    //     rawYMin = y;
+    // }
+    //
+    // if(y > rawYMax){
+    //     rawYMax = y;
+    // }
     return ((pos-inputMin)/(inputMax-inputMin))*(outputMax-outputMin)+outputMin;
 }

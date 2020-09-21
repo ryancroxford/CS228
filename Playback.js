@@ -11,10 +11,13 @@ let rawYMax = -10000;
 let x = centerX;
 let y = centerY;
 let z = 0;
-let colors = ['#c0c0c0','#8a8a8a','#515151','#000000']
+let colors = ['#c0c0c0','#8a8a8a','#515151','#000000'];
+
+
 
 Leap.loop(controllerOptions, function(frame)
 {
+
     handleFrame(frame);
 });
 

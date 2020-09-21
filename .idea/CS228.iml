@@ -6,5 +6,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="leap-0.6.3" level="application" />
     <orderEntry type="library" name="p5" level="application" />
+    <orderEntry type="library" name="numjs" level="application" />
   </component>
 </module>

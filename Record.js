@@ -81,12 +81,12 @@ function handleBone(bone,boneIndex,color,fingerIndex){
     [xb,yb] = TransformCoordinates(xb,yb);
     [xt,yt] = TransformCoordinates(xt,yt);
     let coordinateSum = xt+xb+yt+yb+zt+zb;
-    oneFrameOfData.set(fingerIndex,boneIndex,1,xb);
-    oneFrameOfData.set(fingerIndex,boneIndex,2,yb);
-    oneFrameOfData.set(fingerIndex,boneIndex,3,zb);
-    oneFrameOfData.set(fingerIndex,boneIndex,4,xt);
-    oneFrameOfData.set(fingerIndex,boneIndex,5,yt);
-    oneFrameOfData.set(fingerIndex,boneIndex,6,zt);
+    oneFrameOfData.set(fingerIndex,boneIndex,0,xb);
+    oneFrameOfData.set(fingerIndex,boneIndex,1,yb);
+    oneFrameOfData.set(fingerIndex,boneIndex,2,zb);
+    oneFrameOfData.set(fingerIndex,boneIndex,3,xt);
+    oneFrameOfData.set(fingerIndex,boneIndex,4,yt);
+    oneFrameOfData.set(fingerIndex,boneIndex,5,zt);
     stroke(color)
     strokeWeight(5-boneIndex);
     line(xb,yb,xt,yt);

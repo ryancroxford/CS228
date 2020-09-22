@@ -1,106 +1,81 @@
-var controllerOptions = {};
 
-let centerX = window.innerWidth / 2;
-let centerY = window.innerHeight / 2;
+oneFrameOfData = nj.array([[[  743.40378,  414.85831,    142.988,  743.40378,  414.85831,    142.988],
+    [  743.40378,  414.85831,    142.988,  895.39993,  348.98331,     120.32],
+    [  895.39993,  348.98331,     120.32,  984.35674,  308.66229,    100.888],
+    [  984.35674,  308.66229,    100.888, 1036.65874,  283.91598,     85.844]],
+    [[  691.05263,  336.83883,    145.079,  781.12755,   155.8638,    101.401],
+        [  781.12755,   155.8638,    101.401,  824.09154,  106.17169,    68.8892],
+        [  824.09154,  106.17169,    68.8892,  853.96422,   108.3612,    50.0651],
+        [  853.96422,   108.3612,    50.0651,  876.64801,  125.05012,    37.3178]],
+    [[  645.88551,  332.58632,    141.223,  696.25393,  164.86998,    96.8069],
+        [  696.25393,  164.86998,    96.8069,  732.36184,  122.92873,     58.985],
+        [  732.36184,  122.92873,     58.985,  768.91495,  135.76898,    37.0871],
+        [  768.91495,  135.76898,    37.0871,  798.34438,  161.18674,    23.9252]],
+    [[  602.37268,  340.97944,    136.935,  612.24979,   198.1651,    94.8774],
+        [  612.24979,   198.1651,    94.8774,  626.86598,  160.59314,     59.217],
+        [  626.86598,  160.59314,     59.217,  656.26864,  172.14888,    37.4666],
+        [  656.26864,  172.14888,    37.4666,  684.29921,  196.12156,    24.1655]],
+    [[  567.41353,  376.20133,    131.281,  542.88617,  246.31969,    92.3011],
+        [  542.88617,  246.31969,    92.3011,  529.36474,  221.36903,    63.9208],
+        [  529.36474,  221.36903,    63.9208,   540.6772,  225.63127,    48.0882],
+        [   540.6772,  225.63127,    48.0882,  561.97868,  240.68049,    35.0208]]]);
 
-let rawXMin = 10000;
-let rawXMax = -10000;
-let rawYMin = 10000;
-let rawYMax = -10000;
+anotherFrameOfData = nj.array([[[ 1020.01506,  179.78542,    241.802, 1020.01506,  179.78542,    241.802],
+    [ 1020.01506,  179.78542,    241.802,  942.62536,  152.30913,    218.016],
+    [  942.62536,  152.30913,    218.016,  895.15264,  140.70967,    198.302],
+    [  895.15264,  140.70967,    198.302,  881.08537,  149.69339,    180.346]],
+    [[ 1053.28985,  147.79754,     236.58, 1003.90649,   89.60303,    184.806],
+        [ 1003.90649,   89.60303,    184.806,  972.60644,   59.04259,    154.373],
+        [  972.60644,   59.04259,    154.373,  946.11629,   61.09869,     137.74],
+        [  946.11629,   61.09869,     137.74,  924.89952,   73.20354,    127.836]],
+    [[ 1073.98644,  154.13841,    231.596, 1042.60997,  107.21547,    179.171],
+        [ 1042.60997,  107.21547,    179.171, 1026.04037,   82.44859,    141.542],
+        [ 1026.04037,   82.44859,    141.542, 1000.58567,    88.5947,    120.785],
+        [ 1000.58567,    88.5947,    120.785,  977.96364,  103.06876,    109.887]],
+    [[ 1092.59981,  166.51692,    227.207, 1080.08077,   133.8067,    177.848],
+        [ 1080.08077,   133.8067,    177.848, 1065.86558,   116.0562,    142.392],
+        [ 1065.86558,   116.0562,    142.392, 1040.06819,  124.38907,    122.517],
+        [ 1040.06819,  124.38907,    122.517, 1016.29979,  139.44002,    112.295]],
+    [[ 1104.10311,  191.50075,    223.786, 1108.80946,  166.16438,    177.403],
+        [ 1108.80946,  166.16438,    177.403, 1089.41951,   176.7136,    149.827],
+        [ 1089.41951,   176.7136,    149.827, 1065.13831,  192.19104,    138.836],
+        [ 1065.13831,  192.19104,    138.836, 1038.52489,  209.77143,    133.148]]]);
 
-let x = centerX;
-let y = centerY;
-let z = 0;
-let colors = ['#c0c0c0','#8a8a8a','#515151','#000000'];
-
-
-
-Leap.loop(controllerOptions, function(frame)
-{
-
-    handleFrame(frame);
-});
-
-function getRndInteger(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) ) + min;
-}
-
-function handleFrame(frame){
+let frameIndex = 0;
+let frameShown = 0;
+function draw(){
     clear();
-
-    if(frame.hands.length === 1){
-        let hand = frame.hands[0];
-        handleHand(hand);
-    }
-}
-
-function handleHand(hand){
-    let fingers = hand.fingers;
-    let i = 0;
-    for(i;i<4;++i){
-        let j = 0;
-        for(j;j<5;++j){
-            let bones = fingers[j].bones;
-            handleBone(bones[i],5-i,colors[i]);
+    for(let fingerIndex = 0; fingerIndex < oneFrameOfData.shape[0];++fingerIndex){
+        for(let boneIndex = 0; boneIndex < oneFrameOfData.shape[1];++boneIndex){
+            if(frameShown===0){
+                let xStart = oneFrameOfData.get(fingerIndex,boneIndex,0);
+                let yStart = oneFrameOfData.get(fingerIndex,boneIndex,1);
+                let zStart = oneFrameOfData.get(fingerIndex,boneIndex,2);
+                let xEnd = oneFrameOfData.get(fingerIndex,boneIndex,3);
+                let yEnd = oneFrameOfData.get(fingerIndex,boneIndex,4);
+                let zEnd = oneFrameOfData.get(fingerIndex,boneIndex,5);
+                // console.log(xStart,yStart,zStart,xEnd,yEnd,zEnd);
+                line(xStart,yStart,xEnd,yEnd);
+            } else if(frameShown===1) {
+                xStart = anotherFrameOfData.get(fingerIndex,boneIndex,0);
+                yStart = anotherFrameOfData.get(fingerIndex,boneIndex,1);
+                zStart = anotherFrameOfData.get(fingerIndex,boneIndex,2);
+                xEnd = anotherFrameOfData.get(fingerIndex,boneIndex,3);
+                yEnd = anotherFrameOfData.get(fingerIndex,boneIndex,4);
+                zEnd = anotherFrameOfData.get(fingerIndex,boneIndex,5);
+                // console.log(xStart,yStart,zStart,xEnd,yEnd,zEnd);
+                line(xStart,yStart,xEnd,yEnd);
+            }
         }
     }
-}
 
-function handleFinger(finger){
-    x = finger.tipPosition[0];
-    y = finger.tipPosition[1];
-    y *= -1;
-    z = finger.tipPosition[2];
-
-    let xScale = coordinateScale(x,0,centerX*2,rawXMin,rawXMax);
-    let yScale = coordinateScale(y,0,centerY*2,rawYMin,rawYMax);
-    // circle(xScale,yScale,50);
-    let bones = finger.bones;
-    let i = 0;
-
-}
-
-function handleBone(bone,order,color){
-    let xt = bone.nextJoint[0];
-    let xb = bone.prevJoint[0];
-    let yt = bone.nextJoint[1];
-    let yb = bone.prevJoint[1];
-    yt *= -1;
-    yb *= -1;
-    let zt = bone.nextJoint[2];
-    let zb = bone.prevJoint[2];
-    [xb,yb] = TransformCoordinates(xb,yb);
-    [xt,yt] = TransformCoordinates(xt,yt);
-    stroke(color)
-    strokeWeight(order);
-    line(xb,yb,xt,yt);
-
-}
-
-function TransformCoordinates(x,y) {
-    if(x < rawXMin){
-        rawXMin = x;
+    ++frameIndex;
+    if(frameIndex===100){
+        frameIndex = 0;
+        if(frameShown === 1) {
+            frameShown = 0;
+        } else if(frameShown === 0){
+            frameShown = 1;
+        }
     }
-
-    if(x > rawXMax){
-        rawXMax = x;
-    }
-
-    if(y < rawYMin){
-        rawYMin = y;
-    }
-
-    if(y > rawYMax){
-        rawYMax = y;
-    }
-    x = coordinateScale(x,0,centerY*2,rawYMin,rawYMax);
-    y = coordinateScale(y,0,centerY*2,rawYMin,rawYMax);
-
-
-
-    return [x,y]
-}
-
-function coordinateScale(pos,outputMin,outputMax,inputMin,inputMax){
-    return ((pos-inputMin)/(inputMax-inputMin))*(outputMax-outputMin)+outputMin;
 }

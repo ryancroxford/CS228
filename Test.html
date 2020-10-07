@@ -1,0 +1,23 @@
+<html lang="utf-8">
+    <head>
+        <title>Record</title>
+        <script src="http://js.leapmotion.com/leap-0.6.3.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script>
+        <script>
+            Leap.loop(function(frame) {
+                var interactionBox = frame.interactionBox;
+                console.log(interactionBox.toString());
+                interactionBox.normalizePoint(frame.hands[0].fingers[0].bones[0].prevJoint,true);
+            });
+        </script>
+    </head>
+    <body>
+        <main>
+            <p id="lmCoordinates">P1</p>
+            <p id="normalizedCoordinates">P2</p>
+            <p id="windowCoordinates">P3</p>
+        </main>
+    </body>
+</html>
+

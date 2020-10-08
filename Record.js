@@ -15,7 +15,7 @@ let redColors = ['#d70010','#8a0008','#510008','#350005'];
 let previousNumHands = 0;
 let currentNumHands = 0;
 
-let numSamples = 2;
+let numSamples = 100;
 let currentSample = 0;
 var framesOfData = nj.zeros([5,4,6,numSamples]);
 

@@ -51,7 +51,7 @@ function handleHand(hand,colors,interactionBox){
         let j = 0;
         for(j;j<5;++j){
             let bones = fingers[j].bones;
-            handleBone(bones[i],i,colors[i],j,interactionBox);
+            handleBone(bones[3-i],i,colors[i],j,interactionBox);
         }
     }
 }
@@ -91,7 +91,7 @@ function handleBone(bone,boneIndex,color,fingerIndex,interactionBox){
     yb = windowY*(1-yb);
 
     stroke(color);
-    strokeWeight((5-boneIndex)*5);
+    strokeWeight((boneIndex+2)*7);
     line(xb,yb,xt,yt);
 
 }

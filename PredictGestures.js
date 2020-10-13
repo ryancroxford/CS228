@@ -41,6 +41,22 @@ function Train(){
         knnClassifier.addExample(features.tolist(),9);
         features = train0.pick(null,null,null,i).reshape(120);
         knnClassifier.addExample(features.tolist(),0);
+        features = train5.pick(null,null,null,i).reshape(120);
+        knnClassifier.addExample(features.tolist(),5);
+        features = train1.pick(null,null,null,i).reshape(120);
+        knnClassifier.addExample(features.tolist(),1);
+        features = train2.pick(null,null,null,i).reshape(120);
+        knnClassifier.addExample(features.tolist(),2);
+        features = train3.pick(null,null,null,i).reshape(120);
+        knnClassifier.addExample(features.tolist(),3);
+        features = train4.pick(null,null,null,i).reshape(120);
+        knnClassifier.addExample(features.tolist(),4);
+        features = train6.pick(null,null,null,i).reshape(120);
+        knnClassifier.addExample(features.tolist(),6);
+        features = train7.pick(null,null,null,i).reshape(120);
+        knnClassifier.addExample(features.tolist(),7);
+        features = train8.pick(null,null,null,i).reshape(120);
+        knnClassifier.addExample(features.tolist(),8);
     }
     console.log("Training Completed!");
 
@@ -60,7 +76,7 @@ function GotResults(err,result){
     let resultLabel = parseInt(result.label);
     // console.log(resultLabel);
     ++numPredResult;
-    if(resultLabel === 0){
+    if(resultLabel === 5){
         meanPredAccuracy = (((numPredResult-1)*meanPredAccuracy + (1))/numPredResult);
     } else {
         meanPredAccuracy = (((numPredResult-1)*meanPredAccuracy + (0))/numPredResult);

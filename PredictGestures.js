@@ -35,24 +35,128 @@ Leap.loop(controllerOptions,function(frame){
         HandleState1(frame);
     }
 
-    // handleFrame(frame);
+
 
 });
 
 function DetermineState(frame) {
     if (frame.hands.length === 0){
         programState = 0;
-    } else {
+    } else if(HandIsUncentered){
         programState = 1;
+    } else{
+        programState = 2;
     }
 }
+
+/**
+ * @return {boolean}
+ */
+function HandIsUncentered() {
+    return HandIsTooFarToTheLeft() && HandIsTooFarToTheRight() && HandIsTooFarDown()
+        && HandIsTooFarUp() && HandIsTooFarBack() && HandIsTooFarForward();
+}
+
+/**
+ * @return {boolean}
+ */
+function HandIsTooFarToTheLeft(){
+    let xValues = oneFrameOfData.slice([],[],[0,6,3]);
+    let currentMean = xValues.mean();
+    let horizontalShift = 0.5 - currentMean;
+    let newMean = xValues.mean();
+    return newMean < 0.25;
+}
+
+/**
+ * @return {boolean}
+ */
+function HandIsTooFarToTheRight(){
+    let xValues = oneFrameOfData.slice([],[],[0,6,3]);
+    let currentMean = xValues.mean();
+    let horizontalShift = 0.5 - currentMean;
+    let newMean = xValues.mean();
+    return newMean > 0.75;
+}
+
+/**
+ * @return {boolean}
+ */
+function HandIsTooFarUp(){
+    let yValues = oneFrameOfData.slice([],[],[1,6,3]);
+    let currentMean = yValues.mean();
+    let verticalShift = 0.5 - currentMean;
+    let newMean = yValues.mean();
+    return newMean > 0.75;
+}
+
+/**
+ * @return {boolean}
+ */
+function HandIsTooFarDown(){
+    let yValues = oneFrameOfData.slice([],[],[1,6,3]);
+    let currentMean = yValues.mean();
+    let horizontalShift = 0.5 - currentMean;
+    let newMean = yValues.mean();
+    return newMean < 0.25;
+}
+
+/**
+ * @return {boolean}
+ */
+function HandIsTooFarBack(){
+    let zValues = oneFrameOfData.slice([],[],[2,6,3]);
+    let currentMean = zValues.mean();
+    let verticalShift = 0.5 - currentMean;
+    let newMean = zValues.mean();
+    return newMean > 0.75;
+}
+
+/**
+ * @return {boolean}
+ */
+function HandIsTooFarForward(){
+    let zValues = oneFrameOfData.slice([],[],[2,6,3]);
+    let currentMean = zValues.mean();
+    let horizontalShift = 0.5 - currentMean;
+    let newMean = zValues.mean();
+    return newMean < 0.25;
+}
+
 
 function HandleState0(frame) {
     TrainKNNIfNotDoneYet();
     DrawImageToHelpUserPutTheirHandOverTheDevice();
 }
 
-HandleState1(fr)
+function HandleState1(frame) {
+    handleFrame(frame);
+    if(HandIsTooFarToTheLeft()){
+        DrawHandCorrection(moveRight);
+    } else if(HandIsTooFarToTheRight()){
+        DrawHandCorrection(moveLeft);
+    } else if(HandIsTooFarUp()){
+        DrawHandCorrection(moveDown);
+    } else if(HandIsTooFarDown()){
+        DrawHandCorrection(moveUp);
+    } else if(HandIsTooFarForward()){
+        DrawHandCorrection(moveBack);
+    } else if(HandIsTooFarBack()){
+        DrawHandCorrection(moveForward);
+    }
+    // Test();
+}
+function DrawHandCorrection(imageName){
+    image(imageName,windowX/2,0,[windowX/2],[windowY/2])
+}
+
+function DrawArrowRight() {
+    image(moveRight,windowX/2,0,[windowX/2],[windowY/2])
+}
+
+function DrawImageToHelpUserPutTheirHandOverTheDevice(){
+    image(img,0,0,[windowX/2],[windowY/2]);
+}
 
 function TrainKNNIfNotDoneYet() {
     // if(!trainingCompleted){
@@ -186,7 +290,7 @@ function handleFrame(frame){
         let hand = frame.hands[0];
         handleHand(hand,greyColors,interactionBox);
     }
-    // Test();
+
     // if(frame.hands.length === 1){
     //     let hand = frame.hands[0];
     //     handleHand(hand,greenColors,interactionBox);

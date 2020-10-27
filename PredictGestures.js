@@ -22,41 +22,77 @@ let oneFrameOfData = nj.zeros([5,4,6]);
 let numPredResult = 0;
 let meanPredAccuracy = 0;
 
+let fauxLabel = 0;
+
+let programState = 0;
+
 Leap.loop(controllerOptions,function(frame){
     clear();
-    if(!trainingCompleted){
-        Train();
-    } else {
-        currentNumHands = frame.hands.length;
-        handleFrame(frame);
-        recordData();
-        previousNumHands = currentNumHands;
+    DetermineState(frame);
+    if (programState===0){
+        HandleState0(frame);
+    } else if (programState===1){
+        HandleState1(frame);
     }
+
+    // handleFrame(frame);
 
 });
 
+function DetermineState(frame) {
+    if (frame.hands.length === 0){
+        programState = 0;
+    } else {
+        programState = 1;
+    }
+}
+
+function HandleState0(frame) {
+    TrainKNNIfNotDoneYet();
+    DrawImageToHelpUserPutTheirHandOverTheDevice();
+}
+
+HandleState1(fr)
+
+function TrainKNNIfNotDoneYet() {
+    // if(!trainingCompleted){
+    //     // Train();
+    // } else {
+    //     currentNumHands = frame.hands.length;
+    //     handleFrame(frame);
+    //     // recordData();
+    //     previousNumHands = currentNumHands;
+    // }
+}
+
 function Train(){
+    let features = 0;
     for(let i = 0; i < numSamples;++i){
-        let features = train9.pick(null,null,null,i).reshape(120);
+        features = train9.pick(null,null,null,i).reshape(120);
         knnClassifier.addExample(features.tolist(),9);
         features = train0.pick(null,null,null,i).reshape(120);
         knnClassifier.addExample(features.tolist(),0);
         features = train5.pick(null,null,null,i).reshape(120);
         knnClassifier.addExample(features.tolist(),5);
-        features = train1.pick(null,null,null,i).reshape(120);
+        features = train1a.pick(null,null,null,i).reshape(120);
         knnClassifier.addExample(features.tolist(),1);
-        features = train2.pick(null,null,null,i).reshape(120);
+        features = train1b.pick(null,null,null,i).reshape(120);
+        knnClassifier.addExample(features.tolist(),1);
+        features = train2a.pick(null,null,null,i).reshape(120);
         knnClassifier.addExample(features.tolist(),2);
-        features = train3.pick(null,null,null,i).reshape(120);
+        features = train3a.pick(null,null,null,i).reshape(120);
         knnClassifier.addExample(features.tolist(),3);
-        features = train4.pick(null,null,null,i).reshape(120);
+        features = train3b.pick(null,null,null,i).reshape(120);
+        knnClassifier.addExample(features.tolist(),3);
+        features = train4a.pick(null,null,null,i).reshape(120);
         knnClassifier.addExample(features.tolist(),4);
-        features = train6.pick(null,null,null,i).reshape(120);
+        features = train6a.pick(null,null,null,i).reshape(120);
         knnClassifier.addExample(features.tolist(),6);
-        features = train7.pick(null,null,null,i).reshape(120);
+        features = train7a.pick(null,null,null,i).reshape(120);
         knnClassifier.addExample(features.tolist(),7);
-        features = train8.pick(null,null,null,i).reshape(120);
-        knnClassifier.addExample(features.tolist(),8);
+        features = train8a.pick(null,null,null,i).reshape(120);
+        // knnClassifier.addExample(features.tolist(),8);
+        // features = train8Bongard.pick(null,null,null,i).reshape(120);
     }
     console.log("Training Completed!");
 
@@ -81,7 +117,11 @@ function GotResults(err,result){
     } else {
         meanPredAccuracy = (((numPredResult-1)*meanPredAccuracy + (0))/numPredResult);
     }
-    console.log(numPredResult,meanPredAccuracy,resultLabel);
+    if(numPredResult % 120 === 0){
+        fauxLabel++;
+    }
+    // console.log(numPredResult,resultLabel);
+    console.log(numPredResult,fauxLabel);
 }
 
 function centerXData(){
@@ -146,7 +186,7 @@ function handleFrame(frame){
         let hand = frame.hands[0];
         handleHand(hand,greyColors,interactionBox);
     }
-    Test();
+    // Test();
     // if(frame.hands.length === 1){
     //     let hand = frame.hands[0];
     //     handleHand(hand,greenColors,interactionBox);
@@ -183,10 +223,10 @@ function handleBone(bone,boneIndex,color,fingerIndex,interactionBox){
     oneFrameOfData.set(fingerIndex,boneIndex,3,xt);
     oneFrameOfData.set(fingerIndex,boneIndex,4,yt);
     oneFrameOfData.set(fingerIndex,boneIndex,5,zt);
-    xt = windowX*xt;
-    xb = windowX*xb;
-    yt = windowY*(1-yt);
-    yb = windowY*(1-yb);
+    xt = windowX/2*xt;
+    xb = windowX/2*xb;
+    yt = windowY/2*(1-yt);
+    yb = windowY/2*(1-yb);
 
     stroke(color);
     strokeWeight((boneIndex+2)*7);

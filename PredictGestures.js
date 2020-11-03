@@ -351,3 +351,52 @@ function recordData(){
         background("#000000");
     }
 }
+
+function SignIn(){
+    let username = document.getElementById('username').value;
+    let list = document.getElementById('users');
+    if(IsNewUser(username,list)){
+        CreateNewUser(username,list);
+        CreateSignInItem(username,list);
+    } else {
+        let ID = String(username) + "_signins";
+        listItem = document.getElementById(ID);
+        listItem.innerHTML = parseInt(listItem.innerHTML) + 1
+    }
+    // let users = list.children;
+    // for (let i = 0; i<users.length;++i){
+    //     let item = users[i];
+    //     item.id = String(users[i].innerHTML) + "_name";
+    // }
+    console.log(list.innerHTML);
+    return false;
+}
+
+/**
+ * @return {boolean}
+ */
+function IsNewUser(username,list){
+    let users = list.children;
+    let usernameFound = false;
+    for (let i = 0; i<users.length;++i){
+        if(users[i].innerHTML === username){
+            usernameFound = true;
+        }
+    }
+
+    return usernameFound === false;
+}
+
+function CreateNewUser(username,list){
+    let item = document.createElement('li');
+    item.innerHTML = String(username);
+    item.id = username + "_name";
+    list.appendChild(item);
+}
+
+function CreateSignInItem(username,list){
+    let item = document.createElement('li');
+    item.id = String(username) + '_signins';
+    item.innerHTML = "1";
+    list.appendChild(item);
+}

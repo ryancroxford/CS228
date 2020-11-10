@@ -8,5 +8,7 @@ function setup() {
     moveDown = loadImage('https://i.imgur.com/ysM6sir.jpg');
     moveForward = loadImage('https://i.imgur.com/6J7uIQr.jpg');
     moveBack = loadImage('https://i.imgur.com/lJ9XI9u.jpg');
+    zeroASL = loadImage('https://i.imgur.com/PbFg8uC.jpg');
+    nineASL = loadImage('https://i.imgur.com/PjeD4so.jpg');
 
 }

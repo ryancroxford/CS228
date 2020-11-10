@@ -26,6 +26,9 @@ let fauxLabel = 0;
 
 let programState = 0;
 
+let digitToShow = 0;
+let timeSinceLastDigitChange = new Date();
+
 Leap.loop(controllerOptions,function(frame){
     clear();
     DetermineState(frame);
@@ -33,8 +36,9 @@ Leap.loop(controllerOptions,function(frame){
         HandleState0(frame);
     } else if (programState===1){
         HandleState1(frame);
+    } else if (programState === 2){
+        HandleState2(frame);
     }
-
 
 
 });
@@ -42,7 +46,7 @@ Leap.loop(controllerOptions,function(frame){
 function DetermineState(frame) {
     if (frame.hands.length === 0){
         programState = 0;
-    } else if(HandIsUncentered){
+    } else if(HandIsUncentered()){
         programState = 1;
     } else{
         programState = 2;
@@ -53,8 +57,8 @@ function DetermineState(frame) {
  * @return {boolean}
  */
 function HandIsUncentered() {
-    return HandIsTooFarToTheLeft() && HandIsTooFarToTheRight() && HandIsTooFarDown()
-        && HandIsTooFarUp() && HandIsTooFarBack() && HandIsTooFarForward();
+    return HandIsTooFarToTheLeft() || HandIsTooFarToTheRight() || HandIsTooFarDown()
+        || HandIsTooFarUp() || HandIsTooFarBack() || HandIsTooFarForward();
 }
 
 /**
@@ -125,7 +129,7 @@ function HandIsTooFarForward(){
 
 
 function HandleState0(frame) {
-    TrainKNNIfNotDoneYet();
+    TrainKNNIfNotDoneYet(frame);
     DrawImageToHelpUserPutTheirHandOverTheDevice();
 }
 
@@ -146,6 +150,53 @@ function HandleState1(frame) {
     }
     // Test();
 }
+
+function HandleState2(frame) {
+    handleFrame(frame);
+    DrawLowerRightPanel();
+    DetermineWhetherToSwitchDigits();
+    Test();
+}
+
+function DetermineWhetherToSwitchDigits(){
+    if (TimeToSwitchDigits()){
+        SwitchDigits()
+    }
+}
+
+/**
+ * @return {boolean}
+ */
+function TimeToSwitchDigits() {
+    let currentTime = new Date();
+    let timeDifferenceInMilliseconds = currentTime.getTime() - timeSinceLastDigitChange.getTime();
+    let timeDifferenceInSeconds = timeDifferenceInMilliseconds/1000;
+    if (timeDifferenceInSeconds > 7){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function SwitchDigits() {
+    if(digitToShow === 0){
+        digitToShow = 9;
+    } else if (digitToShow === 9){
+        digitToShow = 0;
+    }
+    meanPredAccuracy = 0;
+    numPredResult = 0;
+    timeSinceLastDigitChange = new Date();
+}
+
+function DrawLowerRightPanel() {
+    if(digitToShow === 0){
+        image(zeroASL,windowX/2,windowY/2,[windowX/2],[windowY/2]);
+    } else if (digitToShow === 9){
+        image(nineASL,windowX/2,windowY/2,[windowX/2],[windowY/2]);
+    }
+}
+
 function DrawHandCorrection(imageName){
     image(imageName,windowX/2,0,[windowX/2],[windowY/2])
 }
@@ -158,10 +209,11 @@ function DrawImageToHelpUserPutTheirHandOverTheDevice(){
     image(img,0,0,[windowX/2],[windowY/2]);
 }
 
-function TrainKNNIfNotDoneYet() {
-    // if(!trainingCompleted){
-    //     // Train();
-    // } else {
+function TrainKNNIfNotDoneYet(frame) {
+    if(!trainingCompleted){
+        Train();
+    }
+    // else {
     //     currentNumHands = frame.hands.length;
     //     handleFrame(frame);
     //     // recordData();
@@ -176,25 +228,25 @@ function Train(){
         knnClassifier.addExample(features.tolist(),9);
         features = train0.pick(null,null,null,i).reshape(120);
         knnClassifier.addExample(features.tolist(),0);
-        features = train5.pick(null,null,null,i).reshape(120);
-        knnClassifier.addExample(features.tolist(),5);
-        features = train1a.pick(null,null,null,i).reshape(120);
-        knnClassifier.addExample(features.tolist(),1);
-        features = train1b.pick(null,null,null,i).reshape(120);
-        knnClassifier.addExample(features.tolist(),1);
-        features = train2a.pick(null,null,null,i).reshape(120);
-        knnClassifier.addExample(features.tolist(),2);
-        features = train3a.pick(null,null,null,i).reshape(120);
-        knnClassifier.addExample(features.tolist(),3);
-        features = train3b.pick(null,null,null,i).reshape(120);
-        knnClassifier.addExample(features.tolist(),3);
-        features = train4a.pick(null,null,null,i).reshape(120);
-        knnClassifier.addExample(features.tolist(),4);
-        features = train6a.pick(null,null,null,i).reshape(120);
-        knnClassifier.addExample(features.tolist(),6);
-        features = train7a.pick(null,null,null,i).reshape(120);
-        knnClassifier.addExample(features.tolist(),7);
-        features = train8a.pick(null,null,null,i).reshape(120);
+        // features = train5.pick(null,null,null,i).reshape(120);
+        // knnClassifier.addExample(features.tolist(),5);
+        // features = train1a.pick(null,null,null,i).reshape(120);
+        // knnClassifier.addExample(features.tolist(),1);
+        // features = train1b.pick(null,null,null,i).reshape(120);
+        // knnClassifier.addExample(features.tolist(),1);
+        // features = train2a.pick(null,null,null,i).reshape(120);
+        // knnClassifier.addExample(features.tolist(),2);
+        // features = train3a.pick(null,null,null,i).reshape(120);
+        // knnClassifier.addExample(features.tolist(),3);
+        // features = train3b.pick(null,null,null,i).reshape(120);
+        // knnClassifier.addExample(features.tolist(),3);
+        // features = train4a.pick(null,null,null,i).reshape(120);
+        // knnClassifier.addExample(features.tolist(),4);
+        // features = train6a.pick(null,null,null,i).reshape(120);
+        // knnClassifier.addExample(features.tolist(),6);
+        // features = train7a.pick(null,null,null,i).reshape(120);
+        // knnClassifier.addExample(features.tolist(),7);
+        // features = train8a.pick(null,null,null,i).reshape(120);
         // knnClassifier.addExample(features.tolist(),8);
         // features = train8Bongard.pick(null,null,null,i).reshape(120);
     }
@@ -216,16 +268,16 @@ function GotResults(err,result){
     let resultLabel = parseInt(result.label);
     // console.log(resultLabel);
     ++numPredResult;
-    if(resultLabel === 5){
+    if(resultLabel === digitToShow){
         meanPredAccuracy = (((numPredResult-1)*meanPredAccuracy + (1))/numPredResult);
     } else {
         meanPredAccuracy = (((numPredResult-1)*meanPredAccuracy + (0))/numPredResult);
     }
-    if(numPredResult % 120 === 0){
-        fauxLabel++;
-    }
-    // console.log(numPredResult,resultLabel);
-    console.log(numPredResult,fauxLabel);
+    // if(numPredResult % 120 === 0){
+    //     fauxLabel++;
+    // }
+    // console.log(digitToShow,resultLabel,meanPredAccuracy);
+    // console.log(numPredResult,fauxLabel);
 }
 
 function centerXData(){
@@ -332,7 +384,10 @@ function handleBone(bone,boneIndex,color,fingerIndex,interactionBox){
     yt = windowY/2*(1-yt);
     yb = windowY/2*(1-yb);
 
-    stroke(color);
+    let red = 255-meanPredAccuracy*255;
+    let green = meanPredAccuracy*255;
+    let alpha = (boneIndex+2)*50;
+    stroke(red,green,0,alpha);
     strokeWeight((boneIndex+2)*7);
     line(xb,yb,xt,yt);
 

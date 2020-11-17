@@ -28,15 +28,29 @@ let programState = 0;
 
 let digitToShow = 0;
 let timeSinceLastDigitChange = new Date();
+let timeSinceDisplayStarted = new Date();
+
+let digitsToLearn = [0,9];
+let numberTimesPassed = [0,0];
+let currentDigitIndex = 0;
+
+let previousPrediction = 0;
+let firstStateTwo = true;
+let accuracyNeeded = 0.67;
 
 Leap.loop(controllerOptions,function(frame){
     clear();
     DetermineState(frame);
+    // console.log(HandIsUncentered());
     if (programState===0){
         HandleState0(frame);
     } else if (programState===1){
         HandleState1(frame);
     } else if (programState === 2){
+        if(firstStateTwo){
+            timeSinceDisplayStarted = new Date();
+            firstStateTwo = false;
+        }
         HandleState2(frame);
     }
 
@@ -159,8 +173,20 @@ function HandleState2(frame) {
 }
 
 function DetermineWhetherToSwitchDigits(){
-    if (TimeToSwitchDigits()){
+    if (CompletedDigit()){
         SwitchDigits()
+    }
+}
+
+/**
+ * @return {boolean}
+ */
+function CompletedDigit(){
+    if(meanPredAccuracy > accuracyNeeded){
+        numberTimesPassed[currentDigitIndex]
+        return true;
+    } else {
+        return false;
     }
 }
 
@@ -179,26 +205,65 @@ function TimeToSwitchDigits() {
 }
 
 function SwitchDigits() {
-    if(digitToShow === 0){
-        digitToShow = 9;
-    } else if (digitToShow === 9){
-        digitToShow = 0;
+    if(currentDigitIndex !== digitsToLearn.length - 1){
+        ++numberTimesPassed[currentDigitIndex];
+        accuracyNeeded = accuracyNeeded/2;
+        currentDigitIndex++;
+    } else {
+        currentDigitIndex = 0;
     }
+    console.log(currentDigitIndex);
+    digitToShow = digitsToLearn[currentDigitIndex];
     meanPredAccuracy = 0;
     numPredResult = 0;
+    timeSinceDisplayStarted = new Date();
     timeSinceLastDigitChange = new Date();
 }
 
+// function SwitchDigits() {
+//     if(digitToShow === 0){
+//         digitToShow = 1;
+//     } else if (digitToShow === 1){
+//         digitToShow = 0;
+//     }
+//     meanPredAccuracy = 0;
+//     numPredResult = 0;
+//     timeSinceLastDigitChange = new Date();
+// }
+
 function DrawLowerRightPanel() {
-    if(digitToShow === 0){
-        image(zeroASL,windowX/2,windowY/2,[windowX/2],[windowY/2]);
-    } else if (digitToShow === 9){
-        image(nineASL,windowX/2,windowY/2,[windowX/2],[windowY/2]);
+    let currentTime = new Date();
+    let timeDifferenceInMilliseconds = currentTime.getTime() - timeSinceDisplayStarted.getTime();
+    let timeDifferenceInSeconds = timeDifferenceInMilliseconds/1000;
+    console.log(timeDifferenceInSeconds,numberTimesPassed[currentDigitIndex]);
+    if (timeDifferenceInSeconds < 5 - numberTimesPassed[currentDigitIndex]){
+        if(digitToShow === 0){
+            image(zeroASL,windowX/2,windowY/2,[windowX/2],[windowY/2]);
+        } else if (digitToShow === 5){
+            image(fiveASL,windowX/2,windowY/2,[windowX/2],[windowY/2]);
+        } else if(digitToShow === 9){
+            image(nineASL,windowX/2,windowY/2,[windowX/2],[windowY/2]);
+        }
+    } else {
+        numPredResult = 0;
+        meanPredAccuracy = 0;
     }
+
+
+
 }
 
 function DrawHandCorrection(imageName){
     image(imageName,windowX/2,0,[windowX/2],[windowY/2])
+}
+
+function DrawLowerLeftPanel(correct){
+    if (correct){
+        image(checkmark,0,windowY/2,[windowX/2],[windowY/2]);
+    } else {
+        image(xmark,0,windowY/2,[windowX/2],[windowY/2]);
+    }
+
 }
 
 function DrawArrowRight() {
@@ -266,13 +331,17 @@ function Test(){
 
 function GotResults(err,result){
     let resultLabel = parseInt(result.label);
-    // console.log(resultLabel);
     ++numPredResult;
     if(resultLabel === digitToShow){
         meanPredAccuracy = (((numPredResult-1)*meanPredAccuracy + (1))/numPredResult);
+        DrawLowerLeftPanel(true);
     } else {
         meanPredAccuracy = (((numPredResult-1)*meanPredAccuracy + (0))/numPredResult);
+        DrawLowerLeftPanel(false);
     }
+    // console.log(resultLabel,meanPredAccuracy);
+
+    previousPrediction = result;
     // if(numPredResult % 120 === 0){
     //     fauxLabel++;
     // }
@@ -390,6 +459,7 @@ function handleBone(bone,boneIndex,color,fingerIndex,interactionBox){
     stroke(red,green,0,alpha);
     strokeWeight((boneIndex+2)*7);
     line(xb,yb,xt,yt);
+
 
 }
 

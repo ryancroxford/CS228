@@ -14,4 +14,5 @@ function setup() {
     fiveASL = loadImage('https://i.imgur.com/y9dr0C7.jpg');
     checkmark = loadImage('https://i.imgur.com/ZlLwNNU.jpg');
     xmark = loadImage('https://i.imgur.com/4PdTS94.jpg');
+    welcome = loadImage('https://i.imgur.com/Q6e5jw0.jpg')
 }

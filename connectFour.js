@@ -28,6 +28,7 @@ let programState = 0;
 
 let digitToShow = 0;
 let timeSinceLastDigitChange = new Date();
+let timeSinceSignIn = new Date();
 let timeSinceDisplayStarted = new Date();
 
 let digitsToLearn = [0,9];
@@ -52,28 +53,29 @@ const cols = 7;
 const rows = 6;
 const w = windowX/14;
 const dw = w*8/10;
-const board = Array(6).fill().map(() => Array(7).fill(0));
+let board = Array(6).fill().map(() => Array(7).fill(0));
+
+let players = [];
 
 let player = 1;
 let playerPos;
 let win = 0;
+
+let playerOneUsername = null;
+let playerTwoUsername = null;
 
 
 Leap.loop(controllerOptions,function(frame){
     clear();
     DetermineState(frame);
     // console.log(HandIsUncentered());
-    if (programState===0){
-        HandleState0(frame);
-    } else if (programState===1){
-        HandleState1(frame);
-    } else if (programState === 2){
-        if(firstStateTwo){
-            timeSinceDisplayStarted = new Date();
-            firstStateTwo = false;
-        }
-        HandleState2(frame);
-    }
+    // if (programState===0){
+    //
+    // } else if (programState===1){
+    //
+    // } else if (programState === 2){
+    //
+    // }
     DrawLowerLeftPanel();
 
 
@@ -82,10 +84,18 @@ Leap.loop(controllerOptions,function(frame){
 function DetermineState(frame) {
     if (frame.hands.length === 0){
         programState = 0;
+        HandleState0(frame);
     } else if(HandIsUncentered()){
         programState = 1;
+        HandleState1(frame);
     } else{
         programState = 2;
+        timeSinceLastDigitChange = new Date();
+        if(firstStateTwo){
+            timeSinceDisplayStarted = new Date();
+            firstStateTwo = false;
+        }
+        HandleState2(frame);
     }
 }
 
@@ -167,6 +177,7 @@ function HandIsTooFarForward(){
 function HandleState0(frame) {
     TrainKNNIfNotDoneYet(frame);
     DrawImageToHelpUserPutTheirHandOverTheDevice();
+    DrawBoard();
 }
 
 function HandleState1(frame) {
@@ -217,47 +228,6 @@ function CompletedDigit(){
     }
 }
 
-/**
- * @return {boolean}
- */
-function TimeToSwitchDigits() {
-    let currentTime = new Date();
-    let timeDifferenceInMilliseconds = currentTime.getTime() - timeSinceLastDigitChange.getTime();
-    let timeDifferenceInSeconds = timeDifferenceInMilliseconds/1000;
-    if (timeDifferenceInSeconds > 7){
-        return true;
-    } else {
-        return false;
-    }
-}
-
-function SwitchDigits() {
-    if(currentDigitIndex !== digitsToLearn.length - 1){
-        ++numberTimesPassed[currentDigitIndex];
-        accuracyNeeded = accuracyNeeded/2;
-        currentDigitIndex++;
-    } else {
-        currentDigitIndex = 0;
-    }
-    console.log(currentDigitIndex);
-    digitToShow = digitsToLearn[currentDigitIndex];
-    meanPredAccuracy = 0;
-    numPredResult = 0;
-    timeSinceDisplayStarted = new Date();
-    timeSinceLastDigitChange = new Date();
-}
-
-// function SwitchDigits() {
-//     if(digitToShow === 0){
-//         digitToShow = 1;
-//     } else if (digitToShow === 1){
-//         digitToShow = 0;
-//     }
-//     meanPredAccuracy = 0;
-//     numPredResult = 0;
-//     timeSinceLastDigitChange = new Date();
-// }
-
 function DrawLowerRightPanel() {
     let currentTime = new Date();
     let timeDifferenceInMilliseconds = currentTime.getTime() - timeSinceDisplayStarted.getTime();
@@ -284,15 +254,14 @@ function DrawHandCorrection(imageName){
     image(imageName,windowX/2,0,[windowX/2],[windowY/2])
 }
 
-// function DrawLowerLeftPanel(correct){
-//     if (correct){
-//         image(checkmark,0,windowY/2,[windowX/2],[windowY/2]);
-//     } else {
-//         image(xmark,0,windowY/2,[windowX/2],[windowY/2]);
-//     }
-// }
-
 function DrawLowerLeftPanel(){
+    let currentTime = new Date();
+    let timeDifferenceInMilliseconds = currentTime.getTime() - timeSinceSignIn.getTime();
+    let timeDifferenceInSeconds = timeDifferenceInMilliseconds/1000;
+    if (timeDifferenceInSeconds > 5/2){
+        isNew = false;
+    }
+
     if(isNew){
         DrawWelcome();
     } else {
@@ -534,9 +503,6 @@ function GotResults(err,result){
     //     // DrawLowerLeftPanel(false);
     // }
     // console.log(resultLabel);
-    TimeToDropPiece();
-
-    previousPrediction = resultLabel;
 }
 
 function centerXData(){
@@ -678,19 +644,36 @@ function recordData(){
 function SignIn(){
     //console.log("hey this function was just called!")
 
-    username = document.getElementById('player-one-username').value;
-    var list = document.getElementById('users');
-    if (IsNewUser(username,list)) {
-        CreateNewUser(username,list);
+    playerOneUsername = document.getElementById('player-one-username').value;
+    playerTwoUsername = document.getElementById('player-two-username').value;
+    let list = document.getElementById('users');
+    if (IsNewUser(playerOneUsername,list)) {
+        CreateNewUser(playerOneUsername,list);
         isNew = true;
     }else {
-        CreateSignInItem(username,list);
+        CreateSignInItem(playerOneUsername,list);
         isNew = false;
     }
-    currentUser = username;
+    list = document.getElementById('users');
+    if (IsNewUser(playerTwoUsername,list)) {
+        CreateNewUser(playerTwoUsername,list);
+        isNew = true;
+    }else {
+        CreateSignInItem(playerTwoUsername,list);
+        isNew = false;
+    }
 
-    console.log("Signed In - " + username);
+    console.log("Signed In - " + playerOneUsername);
+    console.log("Signed In - " + playerTwoUsername);
     console.log(list.innerHTML);
+    players = [];
+    players.push(playerOneUsername,playerTwoUsername);
+    console.log(players);
+    timeSinceSignIn = new Date();
+    board = Array(6).fill().map(() => Array(7).fill(0));
+    win = 0;
+    document.getElementById("play-button").innerText = "Play Again!";
+
     return false;
 
 }
@@ -712,8 +695,7 @@ function IsNewUser(username,list){
 
 }
 
-function CreateNewUser(username,list)
-{
+function CreateNewUser(username,list) {
     var item = document.createElement('li');
     item.id = String(username) + "_name";
     item.innerHTML = String(username);
@@ -727,12 +709,10 @@ function CreateNewUser(username,list)
 }
 
 
-function CreateSignInItem(username,list)
-{
+function CreateSignInItem(username,list) {
     var ID = String(username) + "_signins";
     var listItem = document.getElementById(ID);
     listItem.innerHTML = parseInt(listItem.innerHTML) + 1;
-    wins[users.indexOf(username)]++;
 }
 
 
@@ -822,7 +802,7 @@ function TimeToDropPiece() {
     let timeDifferenceInMilliseconds = currentTime.getTime() - timeSinceLastDigitChange.getTime();
     let timeDifferenceInSeconds = timeDifferenceInMilliseconds/1000;
     if(previousPrediction === resultLabel){
-        if (timeDifferenceInSeconds > 4){
+        if (timeDifferenceInSeconds > 1.75){
             dropPiece();
             timeSinceLastDigitChange = new Date();
         }
@@ -831,7 +811,7 @@ function TimeToDropPiece() {
         console.log("changed here")
     }
     console.log(timeDifferenceInSeconds);
-
+    previousPrediction = resultLabel;
 }
 
 
@@ -860,17 +840,6 @@ function DrawBoard() {
         line(x, w, x, windowY/2);
     }
 
-    stroke(0);
-    if (player === 1) {
-        fill(255,255,0);
-    } else if (player  === 2) {
-        fill(255, 0, 0);
-    }
-    if(playerPos >= 0){
-        ellipse((playerPos + 0.5) * w+windowX/2, w/2, dw);
-    }
-
-
     if (win !== 0) {
         noStroke();
         fill(0);
@@ -886,10 +855,22 @@ function DrawBoard() {
         } else if (win === 3) {
             text("It is a tie.", 3*windowX/4, w/2);
         } else {
-            text(`${win > 1 ? 'Red' : 'Yellow'} won!`, 3*windowX/4, w/2);
+            text(`${win > 1 ? players[1] : players[0]} won!`, 3*windowX/4, w/2);
         }
         noLoop();
     } else if (win === 0){
+        stroke(0);
+        if (player === 1) {
+            fill(255,255,0);
+        } else if (player  === 2) {
+            fill(255, 0, 0);
+        }
+        if(programState === 2){
+            if(playerPos >= 0){
+                ellipse((playerPos + 0.5) * w+windowX/2, w/2, dw);
+            }
+            TimeToDropPiece();
+        }
         textAlign(CENTER, CENTER);
         fill(255);
         textSize(64);
@@ -921,6 +902,11 @@ function dropPiece() {
     if (hasWon()) {
         //console.log(`${player > 1 ? 'Red' : 'Blue'} won!`);
         win = player;
+        if (win === 1){
+            wins[users.indexOf(players[0])]++;
+        } else {
+            wins[users.indexOf(players[1])]++;
+        }
     }
 
     let tie = true;

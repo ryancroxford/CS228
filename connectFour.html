@@ -1,6 +1,6 @@
 <html lang="utf-8">
     <head>
-        <title>Predict Gestures</title>
+        <title>ASL Connect Four</title>
         <script src="http://js.leapmotion.com/leap-0.6.3.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
         <script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script>
@@ -105,7 +105,7 @@
 <!--        <script src="train9Bongard.js"></script>-->
 <!--        <script src="test.js"></script>-->
         <script src="prepareToDraw.js"></script>
-        <script src="PredictGestures.js"></script>
+        <script src="ConnectFour.js"></script>
         <style>
             /* The switch - the box around the slider */
             .switch {
@@ -175,21 +175,11 @@
         <div style="position: relative; overflow: hidden;">
             <form id="player-one-form" style="float: left;">
                 <p style="float: left; margin: 10px;"> Player 1:</p>
-                <input style="margin-top: 10px;" id="player-one-username" type="text" name="player-one-username" placeholder="name">
-                <button onclick="return SignIn();" type="submit">Sign in</button>
-            </form>
-            <form id="player-two-form" style="float: left;">
+                <input style="float: left; margin-top: 10px;" id="player-one-username" type="text" name="player-one-username" placeholder="name">
                 <p style="float: left; margin: 10px;"> Player 2:</p>
-                <input style="margin-top: 10px;" id="player-two-username" type="text" name="player-two-username" placeholder="name">
-                <button onclick="return SignIn();" type="submit">Sign in</button>
+                <input style="float: left; margin-top: 10px;" id="player-two-username" type="text" name="player-two-username" placeholder="name">
+                <button style="float: left; margin-top: 10px;" onclick="return SignIn();" type="submit" id="play-button">Play!</button>
             </form>
-<!--            <h3 style="float: left;">Shuffle Digits:</h3>-->
-<!--            <div style="float: left; margin: 10px;">-->
-<!--                <label class="switch" >-->
-<!--                    <input type="checkbox">-->
-<!--                    <span class="slider round"></span>-->
-<!--                </label>-->
-<!--            </div>-->
         </div>
 
         <main>

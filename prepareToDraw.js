@@ -1,4 +1,5 @@
 var img;
+
 function setup() {
     createCanvas(window.innerWidth,window.innerHeight);
     img = loadImage('https://i.imgur.com/N38G8hs.jpg');
@@ -14,5 +15,6 @@ function setup() {
     fiveASL = loadImage('https://i.imgur.com/y9dr0C7.jpg');
     checkmark = loadImage('https://i.imgur.com/ZlLwNNU.jpg');
     xmark = loadImage('https://i.imgur.com/4PdTS94.jpg');
-    welcome = loadImage('https://i.imgur.com/Q6e5jw0.jpg')
+    welcome = loadImage('https://i.imgur.com/Q6e5jw0.jpg');
+    loading = loadImage('https://i.imgur.com/IGRTy1W.gif');
 }

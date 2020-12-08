@@ -30,6 +30,7 @@ let digitToShow = 0;
 let timeSinceLastDigitChange = new Date();
 let timeSinceSignIn = new Date();
 let timeSinceDisplayStarted = new Date();
+let timeSinceTurnStarted = new Date();
 
 let digitsToLearn = [0,9];
 let numberTimesPassed = [0,0];
@@ -42,11 +43,15 @@ let accuracyNeeded = 0.67;
 let isNew = false;
 let users = [];
 let wins = [];
+let losses = [];
+let averageTurnLength = [];
 let currentUser = "";
 
 let resultLabel = 0;
 
 let learning = false;
+
+let pieceIntensity = 0;
 
 //Game Globals
 const cols = 7;
@@ -63,6 +68,7 @@ let win = 0;
 
 let playerOneUsername = null;
 let playerTwoUsername = null;
+let justStarted = true;
 
 
 Leap.loop(controllerOptions,function(frame){
@@ -84,18 +90,30 @@ Leap.loop(controllerOptions,function(frame){
 function DetermineState(frame) {
     if (frame.hands.length === 0){
         programState = 0;
+        justStarted = true;
         HandleState0(frame);
     } else if(HandIsUncentered()){
         programState = 1;
+        justStarted = true;
         HandleState1(frame);
-    } else{
+    } else if (players.length > 0){
         programState = 2;
-        timeSinceLastDigitChange = new Date();
+        if(justStarted === true){
+            timeSinceLastDigitChange = new Date();
+            timeSinceTurnStarted = new Date();
+            justStarted = false;
+        }
         if(firstStateTwo){
             timeSinceDisplayStarted = new Date();
             firstStateTwo = false;
         }
         HandleState2(frame);
+    } else {
+        let textHeight = 64;
+        textSize(textHeight);
+        textAlign(CENTER,CENTER);
+        fill(0);
+        text("Please Sign In!",windowX/4,windowY/4);
     }
 }
 
@@ -175,9 +193,10 @@ function HandIsTooFarForward(){
 
 
 function HandleState0(frame) {
+    DrawBoard();
     TrainKNNIfNotDoneYet(frame);
     DrawImageToHelpUserPutTheirHandOverTheDevice();
-    DrawBoard();
+
 }
 
 function HandleState1(frame) {
@@ -275,12 +294,18 @@ function DrawScoreboard(){
     textAlign(LEFT);
     fill(0);
     text("Player",50,windowY/2+textHeight+20);
-    text("Wins",200,windowY/2+textHeight+20);
+    text("Wins",175,windowY/2+textHeight+20);
+    text("Losses",250,windowY/2+textHeight+20);
+    text("Turns",350,windowY/2+textHeight+20);
+    text("Average Time",425,windowY/2+textHeight+20);
     for(let i = 0; i < users.length;++i){
         fill(100);
         textSize(textHeight);
         text(users[i],50,windowY/2+textHeight*(i+2)+30);
-        text(wins[i],200,windowY/2+textHeight*(i+2)+30);
+        text(wins[i],175,windowY/2+textHeight*(i+2)+30);
+        text(losses[i],250,windowY/2+textHeight*(i+2)+30);
+        text(averageTurnLength[i][0],350,windowY/2+textHeight*(i+2)+30);
+        text(averageTurnLength[i][1].toFixed(2),425,windowY/2+textHeight*(i+2)+30);
     }
 
     // noStroke();
@@ -624,23 +649,13 @@ function handleBone(bone,boneIndex,color,fingerIndex,interactionBox){
 
     strokeWeight((boneIndex+2)*7);
     line(xb,yb,xt,yt);
+    strokeWeight(2);
+    stroke(0,alpha);
+    line(xb,yb,xt,yt);
 
 
 }
 
-function recordData(){
-    if(currentNumHands === 2){
-        ++currentSample;
-        if(currentSample===numSamples){
-            currentSample = 0;
-        }
-    }
-
-    if(previousNumHands === 2 && currentNumHands === 1){
-        // console.log( oneFrameOfData.toString() );
-        background("#000000");
-    }
-}
 function SignIn(){
     //console.log("hey this function was just called!")
 
@@ -673,7 +688,7 @@ function SignIn(){
     board = Array(6).fill().map(() => Array(7).fill(0));
     win = 0;
     document.getElementById("play-button").innerText = "Play Again!";
-
+    timeSinceTurnStarted = new Date();
     return false;
 
 }
@@ -706,8 +721,17 @@ function CreateNewUser(username,list) {
     list.appendChild(item);
     users.push(username);
     wins.push(0);
+    losses.push(0);
+    averageTurnLength.push([0,1])
 }
 
+function CalculateAverageTurnTime(turnHistory,currentTime){
+    let turns = turnHistory[0];
+    let meanTime = turnHistory[1];
+    let newMeanTime = (meanTime*turns+currentTime)/(turns+1);
+    let updatedTurnHistory = [turns+1,newMeanTime];
+    return updatedTurnHistory;
+}
 
 function CreateSignInItem(username,list) {
     var ID = String(username) + "_signins";
@@ -801,16 +825,23 @@ function TimeToDropPiece() {
     let currentTime = new Date();
     let timeDifferenceInMilliseconds = currentTime.getTime() - timeSinceLastDigitChange.getTime();
     let timeDifferenceInSeconds = timeDifferenceInMilliseconds/1000;
+    console.log("here",timeDifferenceInSeconds);
     if(previousPrediction === resultLabel){
-        if (timeDifferenceInSeconds > 1.75){
+        pieceIntensity = timeDifferenceInSeconds*7;
+        if (timeDifferenceInSeconds > 4/3){
             dropPiece();
+            timeDifferenceInMilliseconds = currentTime.getTime() - timeSinceTurnStarted.getTime();
+            timeDifferenceInSeconds = timeDifferenceInMilliseconds/1000;
+            timeSinceTurnStarted = currentTime;
+            let currentAverage = averageTurnLength[users.indexOf(players[player-1])];
+            averageTurnLength[users.indexOf(players[player-1])] = CalculateAverageTurnTime(currentAverage, timeDifferenceInSeconds);
             timeSinceLastDigitChange = new Date();
+            pieceIntensity = 0;
         }
     } else {
         timeSinceLastDigitChange = new Date();
         console.log("changed here")
     }
-    console.log(timeDifferenceInSeconds);
     previousPrediction = resultLabel;
 }
 
@@ -867,8 +898,10 @@ function DrawBoard() {
         }
         if(programState === 2){
             if(playerPos >= 0){
+                strokeWeight(pieceIntensity);
                 ellipse((playerPos + 0.5) * w+windowX/2, w/2, dw);
             }
+            strokeWeight(1);
             TimeToDropPiece();
         }
         textAlign(CENTER, CENTER);
@@ -904,8 +937,10 @@ function dropPiece() {
         win = player;
         if (win === 1){
             wins[users.indexOf(players[0])]++;
+            losses[users.indexOf(players[1])]++;
         } else {
             wins[users.indexOf(players[1])]++;
+            losses[users.indexOf(players[0])]++;
         }
     }
 

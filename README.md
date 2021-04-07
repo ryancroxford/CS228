@@ -15,5 +15,5 @@ and with an open ended final project to teach American Sign Language
 This project is plug and play compatible with the Leap Motion Controller and requires
 no additional set up. All necessary JavaScript will imported in the static HTML file.
 
-If you have the controller hooked up to your computer run with: `open ./connectFourHTML` in your terminal
+If you have the controller hooked up to your computer run with: `open ./connectFour.HTML` in your terminal
 

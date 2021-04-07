@@ -74,18 +74,9 @@ let justStarted = true;
 Leap.loop(controllerOptions,function(frame){
     clear();
     DetermineState(frame);
-    // console.log(HandIsUncentered());
-    // if (programState===0){
-    //
-    // } else if (programState===1){
-    //
-    // } else if (programState === 2){
-    //
-    // }
     DrawLowerLeftPanel();
-
-
 });
+
 
 function DetermineState(frame) {
     if (frame.hands.length === 0){
@@ -959,44 +950,3 @@ function dropPiece() {
 
     player = 3 - player;
 }
-
-
-
-// function mousePressed() {
-//     if (board[0][playerPos] !== 0) {
-//         win = 4;
-//     }
-//
-//     board[0][playerPos] = player;
-//     let i = 0;
-//     while (true) {
-//         if (i >= rows-1) {
-//             break;
-//         }
-//         if (board[i+1][playerPos] !== 0) {
-//             break;
-//         }
-//         [board[i+1][playerPos], board[i][playerPos]] = [board[i][playerPos], board[i+1][playerPos]];
-//         i++;
-//     }
-//
-//     if (hasWon()) {
-//         //console.log(`${player > 1 ? 'Red' : 'Blue'} won!`);
-//         win = player;
-//     }
-//
-//     let tie = true;
-//     for (let j = 0; j < rows; j++) outer: {
-//         for (let i = 0; i < cols; i++) {
-//             if (board[j][i] === 0) {
-//                 tie = false;
-//             }
-//         }
-//     }
-//
-//     if (tie) {
-//         win = 3;
-//     }
-//
-//     player = 3 - player;
-// }
